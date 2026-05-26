@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.38.1 (2026-05-26)
+
+Full Changelog: [v2.38.0...v2.38.1](https://github.com/openai/openai-python/compare/v2.38.0...v2.38.1)
+
 ## 2.38.0 (2026-05-21)
 
 Full Changelog: [v2.37.0...v2.38.0](https://github.com/openai/openai-python/compare/v2.37.0...v2.38.0)
