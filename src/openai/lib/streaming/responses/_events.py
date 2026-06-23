@@ -31,7 +31,6 @@ from ....types.responses import (
     ResponseAudioTranscriptDoneEvent,
     ResponseAudioTranscriptDeltaEvent,
     ResponseMcpCallArgumentsDoneEvent,
-    ResponseReasoningSummaryDoneEvent,
     ResponseImageGenCallCompletedEvent,
     ResponseMcpCallArgumentsDeltaEvent,
     ResponseMcpListToolsCompletedEvent,

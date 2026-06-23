@@ -8,14 +8,12 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Tuple,
-    Mapping,
     TypeVar,
     Callable,
-    Iterable,
-    Sequence,
     cast,
     overload,
 )
+from collections.abc import Mapping, Iterable, Sequence
 from pathlib import Path
 from datetime import date, datetime
 from typing_extensions import TypeGuard

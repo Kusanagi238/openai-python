@@ -2,22 +2,38 @@ from __future__ import annotations
 
 import inspect
 from types import TracebackType
-from typing import Any, List, Generic, Iterable, Awaitable, cast
+from typing import Any, List, Generic, Iterable, Awaitable, cast, TYPE_CHECKING
 from typing_extensions import Self, Callable, Iterator, AsyncIterator
 
 from ._types import ParsedResponseSnapshot
-from ._events import (
-    ResponseStreamEvent,
-    ResponseTextDoneEvent,
-    ResponseCompletedEvent,
-    ResponseTextDeltaEvent,
-    ResponseFunctionCallArgumentsDeltaEvent,
-)
+
+# Defer importing local event classes at module import time to avoid import-time
+# dependency errors (some symbols in openai.types.responses may be missing at
+# import time). Import for type checking only; runtime code should import or
+# construct events lazily where needed.
+if TYPE_CHECKING:
+    from ._events import (
+        ResponseStreamEvent,
+        ResponseTextDoneEvent,
+        ResponseCompletedEvent,
+        ResponseTextDeltaEvent,
+        ResponseFunctionCallArgumentsDeltaEvent,
+    )
+
 from ...._types import NOT_GIVEN, NotGiven
 from ...._utils import is_given, consume_sync_iterator, consume_async_iterator
 from ...._models import build, construct_type_unchecked
 from ...._streaming import Stream, AsyncStream
-from ....types.responses import ParsedResponse, ResponseStreamEvent as RawResponseStreamEvent
+
+# Avoid importing possibly incomplete exports from openai.types.responses at
+# module import time. Use TYPE_CHECKING to provide static type info, and fall
+# back to Any at runtime to prevent import-time failures.
+if TYPE_CHECKING:
+    from ....types.responses import ParsedResponse, ResponseStreamEvent as RawResponseStreamEvent
+else:
+    ParsedResponse = Any
+    RawResponseStreamEvent = Any
+
 from ..._parsing._responses import TextFormatT, parse_text, parse_response
 from ....types.responses.tool_param import ToolParam
 from ....types.responses.parsed_response import (

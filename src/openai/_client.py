@@ -26,7 +26,35 @@ from ._utils import (
 )
 from ._compat import cached_property
 from ._version import __version__
-from ._streaming import Stream as Stream, AsyncStream as AsyncStream
+# Defer importing streaming and resource modules at runtime to avoid
+# forcing heavy imports (and potential import-time errors) during
+# package import. Keep imports available for type checkers.
+if TYPE_CHECKING:
+    from ._streaming import Stream as Stream, AsyncStream as AsyncStream
+    # Expose resource modules for static type checkers (e.g., pyright)
+    from .resources import (
+        completions,
+        chat,
+        embeddings,
+        files,
+        images,
+        audio,
+        moderations,
+        models,
+        fine_tuning,
+        vector_stores,
+        beta,
+        batches,
+        uploads,
+        responses,
+        evals,
+        containers,
+    )
+else:
+    # At runtime these names are not needed directly; provide placeholders
+    # to avoid NameError if referenced unintentionally.
+    Stream = None  # type: ignore
+    AsyncStream = None  # type: ignore
 from ._exceptions import OpenAIError, APIStatusError
 from ._base_client import (
     DEFAULT_MAX_RETRIES,

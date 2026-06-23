@@ -16,14 +16,18 @@ class MathResponse(BaseModel):
     final_answer: str
 
 
-client = OpenAI()
+import os
+from typing import Iterable, cast
+from openai.lib.streaming.responses import ResponseStreamEvent
+
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
 with client.responses.stream(
     input="solve 8x + 31 = 2",
     model="gpt-4o-2024-08-06",
     text_format=MathResponse,
 ) as stream:
-    for event in stream:
+    for event in cast(Iterable[ResponseStreamEvent], stream):
         if "output_text" in event.type:
             rich.print(event)
 

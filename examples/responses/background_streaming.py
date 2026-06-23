@@ -25,7 +25,9 @@ with client.responses.stream(
     text_format=MathResponse,
     background=True,
 ) as stream:
-    for event in stream:
+    from typing import Any, cast
+    for _event in stream:
+        event = cast(Any, _event)
         if event.type == "response.created":
             id = event.response.id
         if "output_text" in event.type:

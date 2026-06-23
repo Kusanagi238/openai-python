@@ -1132,6 +1132,28 @@ class Completions(SyncAPIResource):
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion | Stream[ChatCompletionChunk]:
         validate_response_format(response_format)
+
+        # Pre-flight API key validation: ensure an API key is available via environment or client configuration.
+        api_key_present = False
+        try:
+            import os as _os
+
+            if _os.environ.get("OPENAI_API_KEY"):
+                api_key_present = True
+        except Exception:
+            api_key_present = False
+
+        # Check client-specified API key (if client is configured with one)
+        client_obj = getattr(self, "_client", None)
+        client_api_key = getattr(client_obj, "api_key", None) if client_obj is not None else None
+        if client_api_key:
+            api_key_present = True
+
+        if not api_key_present:
+            raise ValueError(
+                "No API key provided. Set the OPENAI_API_KEY environment variable or configure the client with credentials before calling Completions.create()."
+            )
+
         return self._post(
             "/chat/completions",
             body=maybe_transform(
@@ -1181,6 +1203,7 @@ class Completions(SyncAPIResource):
             stream=stream or False,
             stream_cls=Stream[ChatCompletionChunk],
         )
+
 
     def retrieve(
         self,
