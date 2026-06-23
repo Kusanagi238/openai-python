@@ -3,7 +3,11 @@
 from openai import OpenAI
 
 # gets API Key from environment variable OPENAI_API_KEY
-client = OpenAI()
+import os
+api_key = os.environ.get("OPENAI_API_KEY")
+if not api_key:
+    raise RuntimeError("OPENAI_API_KEY environment variable not set. Set it (e.g. export OPENAI_API_KEY=sk-...) before running.")
+client = OpenAI(api_key=api_key)
 
 # Non-streaming:
 print("----- standard request -----")
