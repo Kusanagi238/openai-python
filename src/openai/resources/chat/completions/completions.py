@@ -1146,6 +1146,41 @@ class Completions(SyncAPIResource):
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion | Stream[ChatCompletionChunk]:
+        # Ensure an API key is present before attempting the request so we can raise
+        # a clear error message instead of letting the lower-level HTTP client fail.
+        import os
+        try:
+            from openai.error import AuthenticationError
+        except Exception:
+            AuthenticationError = Exception
+
+        auth_present = False
+        # Check extra_headers for an Authorization header (case-insensitive)
+        if extra_headers:
+            try:
+                keys = list(getattr(extra_headers, "keys", lambda: extra_headers)())
+            except Exception:
+                try:
+                    keys = list(extra_headers)
+                except Exception:
+                    keys = []
+            for k in keys:
+                try:
+                    if isinstance(k, str) and k.lower() == "authorization":
+                        auth_present = True
+                        break
+                except Exception:
+                    continue
+
+        # Check the common environment variable
+        if os.environ.get("OPENAI_API_KEY"):
+            auth_present = True
+
+        if not auth_present:
+            raise AuthenticationError(
+                "No API key provided. Set the OPENAI_API_KEY environment variable, provide an Authorization header via extra_headers, or configure the client with a valid API key."
+            )
+
         validate_response_format(response_format)
         return self._post(
             "/chat/completions",
@@ -1197,6 +1232,7 @@ class Completions(SyncAPIResource):
             stream=stream or False,
             stream_cls=Stream[ChatCompletionChunk],
         )
+
 
     def retrieve(
         self,

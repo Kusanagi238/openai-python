@@ -11,6 +11,7 @@ from .function_tool_param import FunctionToolParam
 from .web_search_tool_param import WebSearchToolParam
 from .file_search_tool_param import FileSearchToolParam
 from ..chat.chat_completion_tool_param import ChatCompletionToolParam
+from ..chat.chat_completion_tool_param import ChatCompletionCustomToolParam
 
 __all__ = [
     "ToolParam",
