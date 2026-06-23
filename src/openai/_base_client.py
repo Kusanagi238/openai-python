@@ -637,10 +637,40 @@ class BaseClient(Generic[_HttpxClientT, _DefaultStreamT]):
 
     @property
     def custom_auth(self) -> httpx.Auth | None:
-        return None
+        # Prefer explicitly configured API key from client options, then fall back to env var.
+        api_key = None
+        opts = getattr(self, "_options", None)
+        if isinstance(opts, dict):
+            api_key = opts.get("api_key") or opts.get("apiKey")
+        else:
+            api_key = getattr(self, "api_key", None) or getattr(self, "_api_key", None)
+        if not api_key:
+            import os
+            api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            return None
+        class _BearerAuth(httpx.Auth):
+            def __init__(self, token: str) -> None:
+                self._token = token
+            def auth_flow(self, request):
+                request.headers["Authorization"] = f"Bearer {self._token}"
+                yield request
+        return _BearerAuth(api_key)
 
     @property
     def auth_headers(self) -> dict[str, str]:
+        # Return Authorization header when an API key is available via client options or environment.
+        api_key = None
+        opts = getattr(self, "_options", None)
+        if isinstance(opts, dict):
+            api_key = opts.get("api_key") or opts.get("apiKey")
+        else:
+            api_key = getattr(self, "api_key", None) or getattr(self, "_api_key", None)
+        if not api_key:
+            import os
+            api_key = os.environ.get("OPENAI_API_KEY")
+        if api_key:
+            return {"Authorization": f"Bearer {api_key}"}
         return {}
 
     @property

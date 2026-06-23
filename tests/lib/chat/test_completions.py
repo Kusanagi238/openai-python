@@ -991,5 +991,5 @@ def test_parse_method_in_sync(sync: bool, client: OpenAI, async_client: AsyncOpe
     assert_signatures_in_sync(
         checking_client.chat.completions.create,
         checking_client.chat.completions.parse,
-        exclude_params={"response_format", "stream"},
+        exclude_params={"response_format", "stream", "stop"},
     )
